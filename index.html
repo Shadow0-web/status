@@ -211,39 +211,67 @@
         }
     
       
-        @media (max-width: 1000px) {
-            h1 {
-                font-size: 20px; 
-            }
-    
-            .status-legend {
-                flex-direction: column; 
-                gap: 10px;
-            }
-    
-            .executor-table {
-                font-size: 14px; 
-            }
-    
-            .executor-table th,
-            .executor-table td {
-                padding: 20px; 
-            }
-    
-            .executor-table .status-cell {
-                flex-direction: column; 
-                gap: 20px;
-            }
-    
-            .executor-table label {
-                width: 35px; 
-                height: 35px;
-            }
-    
-            section h2 {
-                font-size: 38px; 
-            }
-        }
+        @media (max-width: 768px) {
+    h1 {
+        font-size: 20px;
+    }
+
+    .status-legend {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .executor-table {
+        font-size: 14px;
+    }
+
+    .executor-table th,
+    .executor-table td {
+        padding: 8px;
+    }
+
+    .executor-table .status-cell {
+        flex-direction: row; 
+        gap: 5px;
+        flex-wrap: wrap; 
+    }
+
+    .executor-table label {
+        width: 25px;
+        height: 25px;
+    }
+
+    section h2 {
+        font-size: 18px;
+    }
+
+    .icon {
+        width: 20px;
+    }
+
+    .icon2 {
+        width: 15px;
+    }
+
+    .icon3 {
+        width: 25px;
+    }
+
+    .icon4 {
+        width: 40px;
+    }
+
+    .admin-menu input {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .admin-menu button {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
     
       
         @media (min-width: 768px) {
