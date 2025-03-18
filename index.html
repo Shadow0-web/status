@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado de Executores</title>
+    <style>
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            box-sizing: border-box;
+            margin: 0 auto;
+        }
+    
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-size: 24px; 
+        }
+    
+        .status-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap; 
+        }
+    
+        .status-legend div {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    
+        .status-legend .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+    
+        .status-legend .funcionando {
+            background-color: #4CAF50;
+        }
+    
+        .status-legend .con-errores {
+            background-color: #FFEB3B;
+        }
+    
+        .status-legend .actualizando {
+            background-color: #FF9800;
+        }
+    
+        .status-legend .no-funcional {
+            background-color: #F44336;
+        }
+    
+        section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+    
+        section h2 {
+            color: #ffffff;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            font-size: 20px; 
+        }
+    
+        .executor-table {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+    
+        .executor-table th,
+        .executor-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+    
+        .executor-table th {
+            background-color: #1d1d1d;
+            color: #ffffff;
+        }
+    
+        .executor-table td {
+            background-color: #2d2d2d;
+        }
+    
+        .executor-table .status-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    
+        .executor-table input[type="radio"] {
+            display: none;
+        }
+    
+        .executor-table label {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            border: 2px solid white;
+        }
+    
+        .executor-table input[type="radio"]:checked + label {
+            border: none;
+        }
+    
+        .executor-table label::before {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-size: cover;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+    
+        .executor-table input[type="radio"]:checked + label::before {
+            opacity: 1;
+        }
+    
+        .executor-table label.funcionando::before {
+            background-image: url('imagenes/verde.gif');
+        }
+    
+        .executor-table label.con-errores::before {
+            background-image: url('imagenes/amarillo.gif');
+        }
+    
+        .executor-table label.actualizando::before {
+            background-image: url('imagenes/naranja.gif');
+        }
+    
+        .executor-table label.no-funcional::before {
+            background-image: url('imagenes/rojo.gif');
+        }
+    
+        .executor-table input[type="radio"]:checked + label::after {
+            content: "";
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    
+        .icon {
+            width: 30px;
+        }
+    
+        .admin-menu {
+            text-align: center;
+            margin-bottom: 20px;
+            z-index: 11;
+        }
+    
+        .admin-menu input {
+            padding: 10px;
+            margin-right: 10px;
+            width: 100%; 
+            box-sizing: border-box;
+        }
+    
+        .admin-menu button {
+            padding: 10px 20px; 
+            background-color: #000000;
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: 100%; 
+            margin-top: 10px; 
+        }
+    
+        .admin-menu button:hover {
+            background-color: #1f1f1f;
+        }
+    
+        .icon2 {
+            width: 18px;
+            vertical-align: bottom;
+        }
+    
+        .icon3 {
+            width: 30px;
+            vertical-align: bottom;
+        }
+    
+        .icon4 {
+            width: 50px;
+            vertical-align: bottom;
+        }
+    
+        .status {
+            vertical-align: middle;
+            text-align: right;
+        }
+    
+      
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 20px; 
+            }
+    
+            .status-legend {
+                flex-direction: column; 
+                gap: 10px;
+            }
+    
+            .executor-table {
+                font-size: 14px; 
+            }
+    
+            .executor-table th,
+            .executor-table td {
+                padding: 8px; 
+            }
+    
+            .executor-table .status-cell {
+                flex-direction: column; 
+                gap: 5px;
+            }
+    
+            .executor-table label {
+                width: 25px; 
+                height: 25px;
+            }
+    
+            section h2 {
+                font-size: 18px; 
+            }
+        }
+    
+      
+        @media (min-width: 768px) {
+            .container {
+                padding: 40px; 
+            }
+    
+            h1 {
+                font-size: 32px; 
+            }
+    
+            .executor-table {
+                font-size: 16px; 
+            }
+    
+            .admin-menu input {
+                width: auto; 
+            }
+    
+            .admin-menu button {
+                width: auto; 
+                margin-top: 0; 
+            }
+        }
+    </style>
+<style>
+
+    body {
+        margin: 0;
+        height: auto; 
+        min-height: 100vh; 
+        background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+        position: relative;
+        font-family: Arial, sans-serif;
+        background-color: #121212;
+        color: #ffffff;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 1200px;
+        padding: 20px;
+        box-sizing: border-box;
+        margin: 0 auto;
+        height: auto; 
+        overflow-y: visible;
+    }
+
+  
+    body::before {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%; 
+        background-image: 
+            radial-gradient(1px 1px at 25% 10%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(1px 1px at 50% 25%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(1px 1px at 75% 30%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(1.5px 1.5px at 15% 40%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(1.5px 1.5px at 60% 70%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(1px 1px at 30% 65%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(1px 1px at 90% 85%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(1.5px 1.5px at 80% 15%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(1.5px 1.5px at 10% 90%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(1px 1px at 35% 80%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(1px 1px at 65% 40%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(1.5px 1.5px at 40% 50%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(2px 2px at 55% 90%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(2px 2px at 85% 55%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(2px 2px at 20% 20%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(2px 2px at 45% 5%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(2px 2px at 95% 35%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(2px 2px at 5% 50%, rgba(255, 255, 255, 0.9) 100%, transparent),
+            radial-gradient(2px 2px at 70% 95%, rgba(255, 255, 255, 0.9) 100%, transparent);
+        background-repeat: repeat;
+        background-size: 400px 400px;
+        animation: twinkling 40s linear infinite;
+        opacity: 0.8;
+    }
+
+  
+    .shooting-stars {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform: rotate(-45deg);
+    }
+
+    .shooting-star {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 4px;
+        height: 4px;
+        background: linear-gradient(-45deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+        border-radius: 999px;
+        filter: drop-shadow(0 0 6px rgba(105, 155, 255, 1));
+        animation: tail 3s ease-in-out infinite, shooting 3s ease-in-out infinite;
+    }
+
+    .shooting-star:nth-child(1) {
+        top: calc(50% - 200px);
+        left: calc(50% - 300px);
+        animation-delay: 1s;
+    }
+
+    .shooting-star:nth-child(2) {
+        top: calc(50% - 100px);
+        left: calc(50% - 190px);
+        animation-delay: 1.6s;
+    }
+
+    .shooting-star:nth-child(3) {
+        top: calc(50% - 50px);
+        left: calc(50% + 100px);
+        animation-delay: 2.1s;
+    }
+
+    .shooting-star:nth-child(4) {
+        top: calc(50% + 70px);
+        left: calc(50% - 250px);
+        animation-delay: 2.5s;
+    }
+
+
+    .nebula {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(30px);
+        opacity: 0.15;
+        background: radial-gradient(circle, rgba(63, 94, 251, 0.6) 0%, rgba(252, 70, 107, 0) 70%);
+    }
+
+    .nebula:nth-child(1) {
+        width: 300px;
+        height: 300px;
+        top: 20%;
+        left: 15%;
+        animation: float 30s infinite alternate ease-in-out;
+    }
+
+    .nebula:nth-child(2) {
+        width: 250px;
+        height: 250px;
+        top: 60%;
+        left: 75%;
+        background: radial-gradient(circle, rgba(72, 219, 251, 0.6) 0%, rgba(29, 209, 161, 0) 70%);
+        animation: float 25s infinite alternate-reverse ease-in-out;
+    }
+
+  
+    @keyframes twinkling {
+        0% {
+            transform: translateY(0);
+        }
+        100% {
+            transform: translateY(-500px);
+        }
+    }
+
+    @keyframes pulse {
+        0% {
+            opacity: 0.2;
+        }
+        50% {
+            opacity: 0.5;
+        }
+        100% {
+            opacity: 0.2;
+        }
+    }
+
+    @keyframes tail {
+        0% {
+            width: 0;
+        }
+        30% {
+            width: 100px;
+        }
+        100% {
+            width: 0;
+        }
+    }
+
+    @keyframes shooting {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(300px);
+        }
+    }
+
+    @keyframes float {
+        0% {
+            transform: translate(0, 0);
+        }
+        50% {
+            transform: translate(-10px, 10px);
+        }
+        100% {
+            transform: translate(10px, -10px);
+        }
+    }
+
+ 
+    @media (max-width: 768px) {
+        body::before {
+            display: none; 
+        }
+
+        .shooting-stars {
+            display: none; 
+        }
+
+        .nebula {
+            display: none; 
+        }
+
+        .container {
+            padding: 10px; 
+        }
+    }
+
+    @media (min-width: 768px) {
+        .container {
+            padding: 40px; 
+        }
+    }
+    .boton-instalar33 {
+            position: relative;
+            display: inline-block;
+            background-color: #000000;
+            color: white;
+            border: none;
+            padding: 5px 9px;
+            border-radius: 7px;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.5s;
+        }
+</style> 
+</head>
+<body>
+    <div class="admin-menu">
+        <input type="password" id="admin-password" placeholder="Contraseña">
+        <button onclick="loginAdmin()">editar</button>
+    </div>
+
+    <h1><a class="boton-instalar33" href="https://vxspotproyect.vercel.app/">←</a> Estado de Executores</h1>
+
+
+    <div class="status-legend">
+        <div>
+            <img src="imagenes/verde.gif" alt="" class="icon">
+            Funcionando
+        </div>
+        <div>
+            <img src="imagenes/amarillo.gif" alt="" class="icon">
+            Funcionando con errores
+        </div>
+        <div>
+            <img src="imagenes/naranja.gif" alt="" class="icon">
+            Actualizando
+        </div>
+        <div>
+            <img src="imagenes/rojo.gif" alt="" class="icon">
+            No funcional
+        </div>
+    </div>
+
+    <section>
+        <h2><img src="img/androidicon.png" class="icon"> Executores Android</h2>
+        <table class="executor-table">
+            <thead>
+                <tr>
+                    <th>Executor</th>
+                    <th class="status">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td> <img src="img/fluxus.png" class="icon2"> Fluxus</td>
+                    <td class="status-cell">
+                        <input type="radio" name="fluxus" value="funcionando" id="fluxus-funcionando" disabled>
+                        <label for="fluxus-funcionando" class="funcionando"></label>
+                        <input type="radio" name="fluxus" value="con-errores" id="fluxus-con-errores" disabled>
+                        <label for="fluxus-con-errores" class="con-errores"></label>
+                        <input type="radio" name="fluxus" value="actualizando" id="fluxus-actualizando" disabled>
+                        <label for="fluxus-actualizando" class="actualizando"></label>
+                        <input type="radio" name="fluxus" value="no-funcional" id="fluxus-no-funcional" disabled>
+                        <label for="fluxus-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td><img src="img/delta.png" class="icon2"> Delta</td>
+                    <td class="status-cell">
+                        <input type="radio" name="delta" value="funcionando" id="delta-funcionando" disabled>
+                        <label for="delta-funcionando" class="funcionando"></label>
+                        <input type="radio" name="delta" value="con-errores" id="delta-con-errores" disabled>
+                        <label for="delta-con-errores" class="con-errores"></label>
+                        <input type="radio" name="delta" value="actualizando" id="delta-actualizando" disabled>
+                        <label for="delta-actualizando" class="actualizando"></label>
+                        <input type="radio" name="delta" value="no-funcional" id="delta-no-funcional" disabled>
+                        <label for="delta-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td><img src="img/arceus.png" class="icon2"> Arceus X</td>
+                    <td class="status-cell">
+                        <input type="radio" name="arceus" value="funcionando" id="arceus-funcionando" disabled>
+                        <label for="arceus-funcionando" class="funcionando"></label>
+                        <input type="radio" name="arceus" value="con-errores" id="arceus-con-errores" disabled>
+                        <label for="arceus-con-errores" class="con-errores"></label>
+                        <input type="radio" name="arceus" value="actualizando" id="arceus-actualizando" disabled>
+                        <label for="arceus-actualizando" class="actualizando"></label>
+                        <input type="radio" name="arceus" value="no-funcional" id="arceus-no-funcional" disabled>
+                        <label for="arceus-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/crypti.png" class="icon2"> Cryptic</td>
+                    <td class="status-cell">
+                        <input type="radio" name="cryptic" value="funcionando" id="cryptic-funcionando" disabled>
+                        <label for="cryptic-funcionando" class="funcionando"></label>
+                        <input type="radio" name="cryptic" value="con-errores" id="cryptic-con-errores" disabled>
+                        <label for="cryptic-con-errores" class="con-errores"></label>
+                        <input type="radio" name="cryptic" value="actualizando" id="cryptic-actualizando" disabled>
+                        <label for="cryptic-actualizando" class="actualizando"></label>
+                        <input type="radio" name="cryptic" value="no-funcional" id="cryptic-no-funcional" disabled>
+                        <label for="cryptic-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/codex.png" class="icon2"> Codex</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Codex" value="funcionando" id="Codex-funcionando" disabled>
+                        <label for="Codex-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Codex" value="con-errores" id="Codex-con-errores" disabled>
+                        <label for="Codex-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Codex" value="actualizando" id="Codex-actualizando" disabled>
+                        <label for="Codex-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Codex" value="no-funcional" id="Codex-no-funcional" disabled>
+                        <label for="Codex-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/vegaX.png" class="icon2"> VegaX</td>
+                    <td class="status-cell">
+                        <input type="radio" name="VegaX" value="funcionando" id="VegaX-funcionando" disabled>
+                        <label for="VegaX-funcionando" class="funcionando"></label>
+                        <input type="radio" name="VegaX" value="con-errores" id="VegaX-con-errores" disabled>
+                        <label for="VegaX-con-errores" class="con-errores"></label>
+                        <input type="radio" name="VegaX" value="actualizando" id="VegaX-actualizando" disabled>
+                        <label for="VegaX-actualizando" class="actualizando"></label>
+                        <input type="radio" name="VegaX" value="no-funcional" id="VegaX-no-funcional" disabled>
+                        <label for="VegaX-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/trigon.png" class="icon2"> Trigon</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Trigon" value="funcionando" id="Trigon-funcionando" disabled>
+                        <label for="Trigon-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Trigon" value="con-errores" id="Trigon-con-errores" disabled>
+                        <label for="Trigon-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Trigon" value="actualizando" id="Trigon-actualizando" disabled>
+                        <label for="Trigon-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Trigon" value="no-funcional" id="Trigon-no-funcional" disabled>
+                        <label for="Trigon-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/Evon.png" class="icon2"> Evon</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Evon" value="funcionando" id="Evon-funcionando" disabled>
+                        <label for="Evon-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Evon" value="con-errores" id="Evon-con-errores" disabled>
+                        <label for="Evon-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Evon" value="actualizando" id="Evon-actualizando" disabled>
+                        <label for="Evon-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Evon" value="no-funcional" id="Evon-no-funcional" disabled>
+                        <label for="Evon-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/cubix.png" class="icon2"> Cubix</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Cubix" value="funcionando" id="Cubix-funcionando" disabled>
+                        <label for="Cubix-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Cubix" value="con-errores" id="Cubix-con-errores" disabled>
+                        <label for="Cubix-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Cubix" value="actualizando" id="Cubix-actualizando" disabled>
+                        <label for="Cubix-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Cubix" value="no-funcional" id="Cubix-no-funcional" disabled>
+                        <label for="Cubix-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/nebula.png" class="icon2"> Nebula</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Nebula" value="funcionando" id="Nebula-funcionando" disabled>
+                        <label for="Nebula-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Nebula" value="con-errores" id="Nebula-con-errores" disabled>
+                        <label for="Nebula-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Nebula" value="actualizando" id="Nebula-actualizando" disabled>
+                        <label for="Nebula-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Nebula" value="no-funcional" id="Nebula-no-funcional" disabled>
+                        <label for="Nebula-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/fros.png" class="icon2"> Frostware</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Frostware" value="funcionando" id="Frostware-funcionando" disabled>
+                        <label for="Frostware-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Frostware" value="con-errores" id="Frostware-con-errores" disabled>
+                        <label for="Frostware-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Frostware" value="actualizando" id="Frostware-actualizando" disabled>
+                        <label for="Frostware-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Frostware" value="no-funcional" id="Frostware-no-funcional" disabled>
+                        <label for="Frostware-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/illusion.png" class="icon2"> Illusion</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Illusion" value="funcionando" id="Illusion-funcionando" disabled>
+                        <label for="Illusion-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Illusion" value="con-errores" id="Illusion-con-errores" disabled>
+                        <label for="Illusion-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Illusion" value="actualizando" id="Illusion-actualizando" disabled>
+                        <label for="Illusion-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Illusion" value="no-funcional" id="Illusion-no-funcional" disabled>
+                        <label for="Illusion-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/roni.png" class="icon2"> RoniX</td>
+                    <td class="status-cell">
+                        <input type="radio" name="RoniX" value="funcionando" id="RoniX-funcionando" disabled>
+                        <label for="RoniX-funcionando" class="funcionando"></label>
+                        <input type="radio" name="RoniX" value="con-errores" id="RoniX-con-errores" disabled>
+                        <label for="RoniX-con-errores" class="con-errores"></label>
+                        <input type="radio" name="RoniX" value="actualizando" id="RoniX-actualizando" disabled>
+                        <label for="RoniX-actualizando" class="actualizando"></label>
+                        <input type="radio" name="RoniX" value="no-funcional" id="RoniX-no-funcional" disabled>
+                        <label for="RoniX-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/reveli.png" class="icon2"> ReveliX</td>
+                    <td class="status-cell">
+                        <input type="radio" name="ReveliX" value="funcionando" id="ReveliX-funcionando" disabled>
+                        <label for="ReveliX-funcionando" class="funcionando"></label>
+                        <input type="radio" name="ReveliX" value="con-errores" id="ReveliX-con-errores" disabled>
+                        <label for="ReveliX-con-errores" class="con-errores"></label>
+                        <input type="radio" name="ReveliX" value="actualizando" id="ReveliX-actualizando" disabled>
+                        <label for="ReveliX-actualizando" class="actualizando"></label>
+                        <input type="radio" name="ReveliX" value="no-funcional" id="ReveliX-no-funcional" disabled>
+                        <label for="ReveliX-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/quest.png" class="icon2"> QuestX</td>
+                    <td class="status-cell">
+                        <input type="radio" name="QuestX" value="funcionando" id="QuestX-funcionando" disabled>
+                        <label for="QuestX-funcionando" class="funcionando"></label>
+                        <input type="radio" name="QuestX" value="con-errores" id="QuestX-con-errores" disabled>
+                        <label for="QuestX-con-errores" class="con-errores"></label>
+                        <input type="radio" name="QuestX" value="actualizando" id="QuestX-actualizando" disabled>
+                        <label for="QuestX-actualizando" class="actualizando"></label>
+                        <input type="radio" name="QuestX" value="no-funcional" id="QuestX-no-funcional" disabled>
+                        <label for="QuestX-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/ker.png" class="icon2"> Krnl</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Krnl" value="funcionando" id="Krnl-funcionando" disabled>
+                        <label for="Krnl-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Krnl" value="con-errores" id="Krnl-con-errores" disabled>
+                        <label for="Krnl-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Krnl" value="actualizando" id="Krnl-actualizando" disabled>
+                        <label for="Krnl-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Krnl" value="no-funcional" id="Krnl-no-funcional" disabled>
+                        <label for="Krnl-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Sección iOS -->
+    <section>
+        <h2><img src="img/iosicon.png" class="icon"> Executores iOS</h2>
+        <table class="executor-table">
+            <thead>
+                <tr>
+                    <th>Executor</th>
+                    <th class="status">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><img src="img/delta.png" class="icon2"> Delta ios</td>
+                    <td class="status-cell">
+                        <input type="radio" name="delta-ios" value="funcionando" id="delta-ios-funcionando" disabled>
+                        <label for="delta-ios-funcionando" class="funcionando"></label>
+                        <input type="radio" name="delta-ios" value="con-errores" id="delta-ios-con-errores" disabled>
+                        <label for="delta-ios-con-errores" class="con-errores"></label>
+                        <input type="radio" name="delta-ios" value="actualizando" id="delta-ios-actualizando" disabled>
+                        <label for="delta-ios-actualizando" class="actualizando"></label>
+                        <input type="radio" name="delta-ios" value="no-funcional" id="delta-ios-no-funcional" disabled>
+                        <label for="delta-ios-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <td><img src="img/arceus.png" class="icon2"> Arceus ios</td>
+                    <td class="status-cell">
+                        <input type="radio" name="arceus-ios" value="funcionando" id="arceus-ios-funcionando" disabled>
+                        <label for="arceus-ios-funcionando" class="funcionando"></label>
+                        <input type="radio" name="arceus-ios" value="con-errores" id="arceus-ios-con-errores" disabled>
+                        <label for="arceus-ios-con-errores" class="con-errores"></label>
+                        <input type="radio" name="arceus-ios" value="actualizando" id="arceus-ios-actualizando" disabled>
+                        <label for="arceus-ios-actualizando" class="actualizando"></label>
+                        <input type="radio" name="arceus-ios" value="no-funcional" id="arceus-ios-no-funcional" disabled>
+                        <label for="arceus-ios-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><img src="img/codex.png" class="icon2"> Codex ios</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Codex-ios" value="funcionando" id="Codex-ios-funcionando" disabled>
+                        <label for="Codex-ios-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Codex-ios" value="con-errores" id="Codex-ios-con-errores" disabled>
+                        <label for="Codex-ios-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Codex-ios" value="actualizando" id="Codex-ios-actualizando" disabled>
+                        <label for="Codex-ios-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Codex-ios" value="no-funcional" id="Codex-ios-no-funcional" disabled>
+                        <label for="Codex-ios-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><img src="img/crypti.png" class="icon2"> Cryptic ios</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Cryptic-ios" value="funcionando" id="Cryptic-ios-funcionando" disabled>
+                        <label for="Cryptic-ios-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Cryptic-ios" value="con-errores" id="Cryptic-ios-con-errores" disabled>
+                        <label for="Cryptic-ios-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Cryptic-ios" value="actualizando" id="Cryptic-ios-actualizando" disabled>
+                        <label for="Cryptic-ios-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Cryptic-ios" value="no-funcional" id="Cryptic-ios-no-funcional" disabled>
+                        <label for="Cryptic-ios-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><img src="img/apleware.png" class="icon2"> Appleware</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Appleware-ios" value="funcionando" id="Appleware-ios-funcionando" disabled>
+                        <label for="Appleware-ios-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Appleware-ios" value="con-errores" id="Appleware-ios-con-errores" disabled>
+                        <label for="Appleware-ios-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Appleware-ios" value="actualizando" id="Appleware-ios-actualizando" disabled>
+                        <label for="Appleware-ios-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Appleware-ios" value="no-funcional" id="Appleware-ios-no-funcional" disabled>
+                        <label for="Appleware-ios-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Sección VNG -->
+    <section>
+        <h2><img src="img/vng.png" class="icon3"> Executores VNG</h2>
+        <table class="executor-table">
+            <thead>
+                <tr>
+                    <th>Executor</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><img src="img/arceus.png" class="icon2"> Arceus vng</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Arceus-vng" value="funcionando" id="Arceus-vng-funcionando" disabled>
+                        <label for="Arceus-vng-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Arceus-vng" value="con-errores" id="Arceus-vng-con-errores" disabled>
+                        <label for="Arceus-vng-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Arceus-vng" value="actualizando" id="Arceus-vng-actualizando" disabled>
+                        <label for="Arceus-vng-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Arceus-vng" value="no-funcional" id="Arceus-vng-no-funcional" disabled>
+                        <label for="Arceus-vng-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td><img src="img/crypti.png" class="icon2"> Cryptic vng</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Cryptic-vng" value="funcionando" id="Cryptic-vng-funcionando" disabled>
+                        <label for="Cryptic-vng-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Cryptic-vng" value="con-errores" id="Cryptic-vng-con-errores" disabled>
+                        <label for="Cryptic-vng-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Cryptic-vng" value="actualizando" id="Cryptic-vng-actualizando" disabled>
+                        <label for="Cryptic-vng-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Cryptic-vng" value="no-funcional" id="Cryptic-vng-no-funcional" disabled>
+                        <label for="Cryptic-vng-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><img src="img/codex.png" class="icon2"> Codex vng</td>
+                    <td class="status-cell">
+                        <input type="radio" name="codex-vng" value="funcionando" id="codex-vng-funcionando" disabled>
+                        <label for="codex-vng-funcionando" class="funcionando"></label>
+                        <input type="radio" name="codex-vng" value="con-errores" id="codex-vng-con-errores" disabled>
+                        <label for="codex-vng-con-errores" class="con-errores"></label>
+                        <input type="radio" name="codex-vng" value="actualizando" id="codex-vng-actualizando" disabled>
+                        <label for="codex-vng-actualizando" class="actualizando"></label>
+                        <input type="radio" name="codex-vng" value="no-funcional" id="codex-vng-no-funcional" disabled>
+                        <label for="codex-vng-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><img src="img/ker.png" class="icon2"> Krnl vng</td>
+                    <td class="status-cell">
+                        <input type="radio" name="krnl-vng" value="funcionando" id="krnl-vng-funcionando" disabled>
+                        <label for="krnl-vng-funcionando" class="funcionando"></label>
+                        <input type="radio" name="krnl-vng" value="con-errores" id="krnl-vng-con-errores" disabled>
+                        <label for="krnl-vng-con-errores" class="con-errores"></label>
+                        <input type="radio" name="krnl-vng" value="actualizando" id="krnl-vng-actualizando" disabled>
+                        <label for="krnl-vng-actualizando" class="actualizando"></label>
+                        <input type="radio" name="krnl-vng" value="no-funcional" id="krnl-vng-no-funcional" disabled>
+                        <label for="krnl-vng-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2> <img src="img/windows.png" class="icon3"> Windows Executores</h2>
+        <table class="executor-table">
+            <thead>
+                <tr>
+                    <th>Executor</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><img src="img/xeno.png" class="icon2"> Xeno</td>
+                    <td class="status-cell">
+                        <input type="radio" name="xeno-pc" value="funcionando" id="xeno-pc-funcionando" disabled>
+                        <label for="xeno-pc-funcionando" class="funcionando"></label>
+                        <input type="radio" name="xeno-pc" value="con-errores" id="xeno-pc-con-errores" disabled>
+                        <label for="xeno-pc-con-errores" class="con-errores"></label>
+                        <input type="radio" name="xeno-pc" value="actualizando" id="xeno-pc-actualizando" disabled>
+                        <label for="xeno-pc-actualizando" class="actualizando"></label>
+                        <input type="radio" name="xeno-pc" value="no-funcional" id="xeno-pc-no-funcional" disabled>
+                        <label for="xeno-pc-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><img src="img/crypti.png" class="icon2"> Cryptic Pc</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Cryptic-pc" value="funcionando" id="Cryptic-pc-funcionando" disabled>
+                        <label for="Cryptic-pc-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Cryptic-pc" value="con-errores" id="Cryptic-pc-con-errores" disabled>
+                        <label for="Cryptic-pc-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Cryptic-pc" value="actualizando" id="Cryptic-pc-actualizando" disabled>
+                        <label for="Cryptic-pc-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Cryptic-pc" value="no-funcional" id="Cryptic-pc-no-funcional" disabled>
+                        <label for="Cryptic-pc-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><img src="img/swift.png" class="icon2"> Swift</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Swift-pc" value="funcionando" id="Swift-pc-funcionando" disabled>
+                        <label for="Swift-pc-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Swift-pc" value="con-errores" id="Swift-pc-con-errores" disabled>
+                        <label for="Swift-pc-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Swift-pc" value="actualizando" id="Swift-pc-actualizando" disabled>
+                        <label for="Swift-pc-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Swift-pc" value="no-funcional" id="Swift-pc-no-funcional" disabled>
+                        <label for="Swift-pc-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><img src="img/jjsploit.png" class="icon2"> Jjsploit</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Jjsploit-pc" value="funcionando" id="Jjsploit-pc-funcionando" disabled>
+                        <label for="Jjsploit-pc-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Jjsploit-pc" value="con-errores" id="Jjsploit-pc-con-errores" disabled>
+                        <label for="Jjsploit-pc-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Jjsploit-pc" value="actualizando" id="Jjsploit-pc-actualizando" disabled>
+                        <label for="Jjsploit-pc-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Jjsploit-pc" value="no-funcional" id="Jjsploit-pc-no-funcional" disabled>
+                        <label for="Jjsploit-pc-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><img src="img/velocity.png" class="icon2"> Velocity</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Velocity-pc" value="funcionando" id="Velocity-pc-funcionando" disabled>
+                        <label for="Velocity-pc-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Velocity-pc" value="con-errores" id="Velocity-pc-con-errores" disabled>
+                        <label for="Velocity-pc-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Velocity-pc" value="actualizando" id="Velocity-pc-actualizando" disabled>
+                        <label for="Velocity-pc-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Velocity-pc" value="no-funcional" id="Velocity-pc-no-funcional" disabled>
+                        <label for="Velocity-pc-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+             
+
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2><img src="img/emulador.png" class="icon4">Emuladores</h2>
+        <table class="executor-table">
+            <thead>
+                <tr>
+                    <th>Executor</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><img src="img/nox.png" class="icon2"> Nox</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Nox-emu" value="funcionando" id="Nox-emu-funcionando" disabled>
+                        <label for="Nox-emu-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Nox-emu" value="con-errores" id="Nox-emu-con-errores" disabled>
+                        <label for="Nox-emu-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Nox-emu" value="actualizando" id="Nox-emu-actualizando" disabled>
+                        <label for="Nox-emu-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Nox-emu" value="no-funcional" id="Nox-emu-no-funcional" disabled>
+                        <label for="Nox-emu-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><img src="img/mumuplayer.png" class="icon2"> Mumu player</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Mumu-emu" value="funcionando" id="Mumu-emu-funcionando" disabled>
+                        <label for="Mumu-emu-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Mumu-emu" value="con-errores" id="Mumu-emu-con-errores" disabled>
+                        <label for="Mumu-emu-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Mumu-emu" value="actualizando" id="Mumu-emu-actualizando" disabled>
+                        <label for="Mumu-emu-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Mumu-emu" value="no-funcional" id="Mumu-emu-no-funcional" disabled>
+                        <label for="Mumu-emu-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><img src="img/ldplayer.png" class="icon2"> LD player</td>
+                    <td class="status-cell">
+                        <input type="radio" name="LD-emu" value="funcionando" id="LD-emu-funcionando" disabled>
+                        <label for="LD-emu-funcionando" class="funcionando"></label>
+                        <input type="radio" name="LD-emu" value="con-errores" id="LD-emu-con-errores" disabled>
+                        <label for="LD-emu-con-errores" class="con-errores"></label>
+                        <input type="radio" name="LD-emu" value="actualizando" id="LD-emu-actualizando" disabled>
+                        <label for="LD-emu-actualizando" class="actualizando"></label>
+                        <input type="radio" name="LD-emu" value="no-funcional" id="LD-emu-no-funcional" disabled>
+                        <label for="LD-emu-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><img src="img/ugphone.png" class="icon2"> Ugphone</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Ugphone-emu" value="funcionando" id="Ugphone-emu-funcionando" disabled>
+                        <label for="Ugphone-emu-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Ugphone-emu" value="con-errores" id="Ugphone-emu-con-errores" disabled>
+                        <label for="Ugphone-emu-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Ugphone-emu" value="actualizando" id="Ugphone-emu-actualizando" disabled>
+                        <label for="Ugphone-emu-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Ugphone-emu" value="no-funcional" id="Ugphone-emu-no-funcional" disabled>
+                        <label for="Ugphone-emu-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2> <img src="img/cubomc.gif" class="icon3"> Executores Craft</h2>
+        <table class="executor-table">
+            <thead>
+                <tr>
+                    <th>Executor</th>
+                    <th class="status">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td> <img src="img/fluxus.png" class="icon2"> + <img src="img/cubomc.gif" class="icon2"> Fluxus Craft</td>
+                    <td class="status-cell">
+                        <input type="radio" name="fluxus-mc" value="funcionando" id="fluxus-mc-funcionando" disabled>
+                        <label for="fluxus-mc-funcionando" class="funcionando"></label>
+                        <input type="radio" name="fluxus-mc" value="con-errores" id="fluxus-mc-con-errores" disabled>
+                        <label for="fluxus-mc-con-errores-mc" class="con-errores"></label>
+                        <input type="radio" name="fluxus-mc" value="actualizando" id="fluxus-mc-actualizando" disabled>
+                        <label for="fluxus-mc-actualizando" class="actualizando"></label>
+                        <input type="radio" name="fluxus-mc" value="no-funcional" id="fluxus-mc-no-funcional" disabled>
+                        <label for="fluxus-mc-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td><img src="img/delta.png" class="icon2"> + <img src="img/cubomc.gif" class="icon2"> Delta Craft</td>
+                    <td class="status-cell">
+                        <input type="radio" name="delta-mc" value="funcionando" id="delta-mc-funcionando" disabled>
+                        <label for="delta-mc-funcionando" class="funcionando"></label>
+                        <input type="radio" name="delta-mc" value="con-errores" id="delta-mc-con-errores" disabled>
+                        <label for="delta-mc-con-errores" class="con-errores"></label>
+                        <input type="radio" name="delta-mc" value="actualizando" id="delta-mc-actualizando" disabled>
+                        <label for="delta-mc-actualizando" class="actualizando"></label>
+                        <input type="radio" name="delta-mc" value="no-funcional" id="delta-mc-no-funcional" disabled>
+                        <label for="delta-mc-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td><img src="img/arceus.png" class="icon2"> + <img src="img/cubomc.gif" class="icon2"> Arceus Craft</td>
+                    <td class="status-cell">
+                        <input type="radio" name="arceus-mc" value="funcionando" id="arceus-mc-funcionando" disabled>
+                        <label for="arceus-mc-funcionando" class="funcionando"></label>
+                        <input type="radio" name="arceus-mc" value="con-errores" id="arceus-mc-con-errores" disabled>
+                        <label for="arceus-mc-con-errores-mc" class="con-errores"></label>
+                        <input type="radio" name="arceus-mc" value="actualizando" id="arceus-mc-actualizando" disabled>
+                        <label for="arceus-mc-actualizando" class="actualizando"></label>
+                        <input type="radio" name="arceus-mc" value="no-funcional" id="arceus-mc-no-funcional" disabled>
+                        <label for="arceus-mc-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/crypti.png" class="icon2"> + <img src="img/cubomc.gif" class="icon2"> Cryptic Craft</td>
+                    <td class="status-cell">
+                        <input type="radio" name="cryptic-mc" value="funcionando" id="cryptic-mc-funcionando" disabled>
+                        <label for="cryptic-mc-funcionando" class="funcionando"></label>
+                        <input type="radio" name="cryptic-mc" value="con-errores" id="cryptic-mc-con-errores" disabled>
+                        <label for="cryptic-mc-con-errores" class="con-errores"></label>
+                        <input type="radio" name="cryptic-mc" value="actualizando" id="cryptic-mc-actualizando" disabled>
+                        <label for="cryptic-mc-actualizando" class="actualizando"></label>
+                        <input type="radio" name="cryptic-mc" value="no-funcional" id="cryptic-mc-no-funcional" disabled>
+                        <label for="cryptic-mc-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/codex.png" class="icon2"> + <img src="img/cubomc.gif" class="icon2"> Codex Craft</td>
+                    <td class="status-cell">
+                        <input type="radio" name="Codex-mc" value="funcionando" id="Codex-mc-funcionando" disabled>
+                        <label for="Codex-mc-funcionando" class="funcionando"></label>
+                        <input type="radio" name="Codex-mc" value="con-errores" id="Codex-mc-con-errores" disabled>
+                        <label for="Codex-mc-con-errores" class="con-errores"></label>
+                        <input type="radio" name="Codex-mc" value="actualizando" id="Codex-mc-actualizando" disabled>
+                        <label for="Codex-mc-actualizando" class="actualizando"></label>
+                        <input type="radio" name="Codex-mc" value="no-funcional" id="Codex-mc-no-funcional" disabled>
+                        <label for="Codex-mc-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> <img src="img/vegaX.png" class="icon2"> + <img src="img/cubomc.gif" class="icon2"> VegaX Craft</td>
+                    <td class="status-cell">
+                        <input type="radio" name="VegaX-mc" value="funcionando" id="VegaX-mc-funcionando" disabled>
+                        <label for="VegaX-mc-funcionando" class="funcionando"></label>
+                        <input type="radio" name="VegaX-mc" value="con-errores" id="VegaX-mc-con-errores" disabled>
+                        <label for="VegaX-mc-con-errores" class="con-errores"></label>
+                        <input type="radio" name="VegaX-mc" value="actualizando" id="VegaX-mc-actualizando" disabled>
+                        <label for="VegaX-mc-actualizando" class="actualizando"></label>
+                        <input type="radio" name="VegaX-mc" value="no-funcional" id="VegaX-mc-no-funcional" disabled>
+                        <label for="VegaX-mc-no-funcional" class="no-funcional"></label>
+                    </td>
+                </tr>
+
+
+            </tbody>
+        </table>
+    </section>
+
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <script>
+        Parse.initialize("9ffUWtgMHsjdfjtdX2K9vmeKQ0AbH9FLnMAchmP2", "55ycOwZVUAmz7rJNQIa4m3B2vExq7zYGbqjX2RTH");
+        Parse.serverURL = "https://parseapi.back4app.com/";
+        const storedHash = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
+        let isAdmin = false;
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
+        async function loginAdmin() {
+            const password = document.getElementById('admin-password').value;
+            const hashedPassword = await hashPassword(password);
+
+            if (hashedPassword === storedHash) {
+                isAdmin = true;
+                alert("Ahora puedes editar los estados");
+                enableEditing();
+            } else {
+                alert("Contraseña incorrecta");
+            }
+        }
+
+
+        function enableEditing() {
+            const radios = document.querySelectorAll('input[type="radio"]');
+            radios.forEach(radio => {
+                radio.disabled = !isAdmin;
+            });
+        }
+
+        async function saveState(executorName, state) {
+            if (!isAdmin) return;
+
+            const Executor = Parse.Object.extend("Executor");
+            const query = new Parse.Query(Executor);
+            query.equalTo("name", executorName);
+
+            try {
+                let executor = await query.first();
+                if (!executor) {
+                    executor = new Executor();
+                    executor.set("name", executorName);
+                }
+                executor.set("state", state);
+                await executor.save();
+                alert("Estado guardado correctamente.");
+            } catch (error) {
+                console.error("Error al guardar el estado:", error);
+            }
+        }
+
+        async function loadStatesInBatches(executorNames, batchSize = 5, delay = 1000) {
+            const Executor = Parse.Object.extend("Executor");
+
+            for (let i = 0; i < executorNames.length; i += batchSize) {
+                const batch = executorNames.slice(i, i + batchSize);
+                const query = new Parse.Query(Executor);
+                query.containedIn("name", batch);
+
+                try {
+                    const results = await query.find();
+                    results.forEach(executor => {
+                        const executorName = executor.get("name");
+                        const state = executor.get("state");
+                        const radio = document.querySelector(`input[name="${executorName}"][value="${state}"]`);
+                        if (radio) {
+                            radio.checked = true;
+                        }
+                    });
+                } catch (error) {
+                    console.error("Error al cargar el lote de estados:", error);
+                }
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+        function getExecutorNames() {
+            const radios = document.querySelectorAll('input[type="radio"]');
+            const executorNames = new Set();
+            radios.forEach(radio => {
+                executorNames.add(radio.name);
+            });
+            return Array.from(executorNames);
+        }
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener("change", (event) => {
+                if (isAdmin) {
+                    const executorName = event.target.name;
+                    const state = event.target.value;
+                    saveState(executorName, state);
+                }
+            });
+        });
+        const executorNames = getExecutorNames();
+        loadStatesInBatches(executorNames);
+        enableEditing();
+    </script>
+</body>
+</html>
